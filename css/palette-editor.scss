@@ -1,0 +1,439 @@
+@import 'zindex';
+
+$basecolor: #332f35; 									//color(base)
+	$basetext: lighten($basecolor, 50%); 				//color(menu, foreground), color(base, foreground, text)
+	$basetextweak: lighten($basecolor, 30%); 				//color(menu, foreground), color(base, foreground, text)
+	$baselink: lighten($basecolor, 100%); 				//color(menu, foreground), color(base, foreground, text)
+	$baseicon: lighten($basecolor, 25%); 				//color(base, foreground)
+$basehover: lighten($basecolor, 6%); 					//color(base, background, hover), color(button), color(menu), color(menu, background, hover)
+	$basehovertext: lighten($basecolor, 60%); 			//color(base, foreground, bold), color(menu, foreground, hover), color(button, foreground)
+	$basehovericon: lighten($basecolor, 40%); 			//color(base, foreground, hover)
+	$basehovericonhover: lighten($basecolor, 60%); 			//color(base, foreground, hover)
+$baseselected: lighten($basecolor, 15%); 				//color(selectedTool, background), color(button, background, hover)
+	$baseselectedtext: lighten($basecolor, 80%); 		//color(base, foreground, bold)
+	$baseselectedicon: lighten($basecolor, 50%); 		//color(subbutton, foreground), color(selectedTool, foreground)
+	$baseselectediconhover: lighten($basecolor, 70%); 	//color(subbutton, foreground, hover)
+$baseselectedhover: lighten($basecolor, 25%); //color(subbutton, background, hover)
+$indent: darken($basecolor, 5%); //color(indent)
+	$indenttext: lighten($basecolor, 50%); //color(indent, foreground)
+
+
+body {
+	background: darken($basecolor, 6%);
+	font-family: 'Roboto', sans-serif;
+	margin: 0;
+	padding: 0;
+	color: #fff;
+	font-size: 14px;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	-moz-user-select: none;
+	/* Firefox */
+	-ms-user-select: none;
+	/* Internet Explorer */
+	-khtml-user-select: none;
+	/* KHTML browsers (e.g. Konqueror) */
+	-webkit-user-select: none;
+	/* Chrome, Safari, and Opera */
+	-webkit-touch-callout: none;
+	/* Disable Android and iOS callouts*/
+}
+
+
+//don't let svg handle click events, just send to parents
+svg {
+	pointer-events: none;
+	path {
+		pointer-events: none;
+	}
+}
+
+//remove blue outline in chrome
+*:focus {
+	outline: 0 !important;
+}
+
+.weak {
+	font-size: 0.8em;
+	color: $basetextweak;
+}
+
+#brush-preview {
+	position: absolute;
+	border: solid 1px #fff;
+	z-index: 1200;
+	box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 0 2px 0 rgba(0, 0, 0, 0.5);
+	pointer-events: none;
+	left: -500px;
+	&.dark {
+		border: solid 1px #000;
+		box-shadow: 0 0 3px 0 rgba(255, 255, 255, 0.8), inset 0 0 3px 0 rgba(255, 255, 255, 0.8);
+	}
+}
+
+#main-menu {
+	height: 48px;
+	left: 0;
+	right: 0;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	background-color: $basecolor;
+	position: fixed;
+	z-index: 1110;
+	overflow: visible;
+	&>li {
+		float: left;
+		height: 100%;
+	}
+	li button,
+	li a {
+		color: $basetext;
+		height: 100%;
+		padding: 17px;
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
+	li.selected {
+		background-color: $basehover;
+		&>button {
+			color: $basehovertext;
+		}
+		ul {
+			display: block;
+		}
+	}
+	li ul {
+		display: none;
+		position: absolute;
+		top: 48px;
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+		background-color: $basehover;
+		box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.5);
+		padding-bottom: 2px;
+		li {
+			width: 100%;
+			button,
+			a {
+				width: 100%;
+				text-align: left;
+				padding: 8px 32px 8px 16px;
+				font-size: 1em;
+				&:hover {
+					background-color: $baseselected;
+					color: $baseselectedtext;
+				}
+			}
+			a {
+				display: block;
+				text-decoration: none;
+				box-sizing: border-box;
+			}
+		}
+	}
+	.disabled {
+		color: #6f6e70 !important;
+	}
+}
+
+
+/*app title*/
+
+.logo {
+	color: lighten($basecolor, 20%);
+	text-transform: uppercase;
+	font-weight: bold;
+	padding: 17px 10px 0;
+	cursor: default;
+	box-sizing: border-box;
+}
+
+#data-holders {
+	display: none;
+}
+
+.shake {
+	animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+	position: relative;
+}
+
+@keyframes shake {
+	10%,
+	90% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	20%,
+	80% {
+		transform: translate3d(1px, 0, 0);
+	}
+	30%,
+	50%,
+	70% {
+		transform: translate3d(-2px, 0, 0);
+	}
+	40%,
+	60% {
+		transform: translate3d(2px, 0, 0);
+	}
+}
+
+//floating button to open jscolor picker
+.color-edit-button {
+	position: absolute;
+	top: 3px;
+	left: 0px;
+	background: $basecolor;
+	padding: 6px 10px 3px 6px;
+	border-radius: 4px 0 0 4px;
+	cursor: pointer;
+	transition: left 0.25s;
+	z-index: -1;
+	box-shadow: 0px 15px 15px 0px rgba(0, 0, 0, 0.2);
+	path {
+		fill: $baseicon;
+	}
+	&:hover {
+		background: $basehover;
+		path {
+			fill: $basehovericon;
+		}
+	} //class added when jscolor is opened
+	&.hidden {
+		left: 0px !important;
+	}
+}
+
+#pop-up-container {
+	position: fixed;
+	z-index: 2000;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(35, 32, 36, 0.75);
+	display: none;
+	color: $basetext;
+	cursor: default;
+	&>div {
+		background: $basecolor;
+		border-radius: 3px;
+		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+		width: 400px;
+		padding: 20px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: none;
+	}
+	h1 {
+		margin: 0 0 10px;
+		color: lighten($basecolor, 100%);
+		text-transform: uppercase;
+		font-size: 1.5em;
+	}
+	h2 {
+		margin: 25px 0 10px;
+		color: lighten($basecolor, 70%);
+		text-transform: uppercase;
+		font-size: 1em;
+	}
+	a {
+		color: $baselink;
+		border-bottom: dotted 1px transparent;
+		text-decoration: none;
+		&:hover {
+			border-bottom: dotted 1px $basetext;
+		}
+	}
+
+	.close-button {
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		right: 0;
+		top: 0;
+		background: transparent;
+		border: none;
+		color: $baseicon;
+		font-weight: bold;
+		font-size: 1em;
+		cursor: pointer;
+		border-radius: 0 3px 0 0;
+		path {
+			fill: $baseicon;
+		}
+		&:hover {
+			background: $basehover;
+			path {
+				fill: $basehovericon;
+			}
+		}
+	}
+
+	button.default {
+		float: right;
+		background: $basehover;
+		border: none;
+		border-radius: 4px;
+		color: $basehovertext;
+		padding: 10px 20px;
+		cursor: pointer;
+		margin: 20px 0 0 10px;
+		&:hover {
+			background: $baseselected;
+		}
+	}
+
+	input {
+		background: $indent;
+		border: none;
+		border-radius: 4px;
+		color: $indenttext;
+		padding: 10px 20px;
+		margin: 0;
+		width: 60px;
+		text-align: center;
+	}
+
+	.dropdown-button {
+		background: $basehover url('/pixel-editor/dropdown-arrow.png') right center no-repeat;
+		border: none;
+		border-radius: 4px;
+		color: $basehovertext;
+		padding: 5px 20px 5px 5px;
+		cursor: pointer;
+		margin: 0;
+		width: 200px;
+		text-align: left;
+		&:hover {
+			background: $baseselected url('/pixel-editor/dropdown-arrow-hover.png') right center no-repeat;
+			color: $baseselectedtext;
+		}
+		&.selected {
+			border-radius: 4px 4px 0 0;
+		}
+	}
+
+	.dropdown-menu {
+		background: $basehover;
+		border: none;
+		color: $basehovertext;
+		padding: 0;
+		margin: -1px 0 0 0;
+		width: 200px;
+		text-align: left;
+		position: absolute;
+		border-radius: 0 0 4px 4px;
+		overflow: hidden;
+		display: none;
+		&.selected {
+			display: block;
+		}
+
+		button {
+			background: $basehover;
+			border: none;
+			color: $basehovertext;
+			padding: 5px 20px 5px 5px;
+			cursor: pointer;
+			margin: 0;
+			width: 100%;
+			text-align: left;
+			&:hover {
+				background: $baseselected;
+			}
+		}
+	}
+}
+
+.keyboard-key {
+	background: lighten($basecolor, 20%);
+	box-shadow: 0 3px 0 2px lighten($basecolor, 12%);
+	padding: 0 4px;
+	border-radius: 2px;
+	margin: 6px;
+	display: inline-block;
+	color: #c0bfc1;
+}
+
+.settings-entry {
+	display: flex;
+	align-items: baseline;
+	margin-top:10px;
+
+	label {
+		flex: 1;
+	}
+	input {
+		width: 90px !important;
+		display: block;
+		box-sizing: border-box;
+		float:right;
+	}
+}
+
+.preload {
+	display: none;
+}
+
+#cookies-disabled-warning {
+	display: none;
+	color: $basetextweak;
+	font-style: italic;
+}
+
+#compatibility-warning {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+	z-index: 3000;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(35, 32, 36, 0.92);
+	color: $basetext;
+	div {
+		position: relative;
+		width: 100%;
+		height: 100%;
+
+		div {
+			width: 400px;
+			background-color: $basecolor;
+			padding: 20px;
+			width: 400px;
+			height: 200px;
+
+			position: absolute;
+			top: 50%;
+			left: 50%;
+
+			margin: -120px 0 0 -220px;
+		}
+	}
+	a {
+		color: $baselink;
+		border-bottom: dotted 1px transparent;
+		text-decoration: none;
+		&:hover {
+			border-bottom: dotted 1px $basetext;
+		}
+	}
+	button {
+		background: $basehover;
+		border: none;
+		border-radius: 4px;
+		color: $basehovertext;
+		padding: 10px 20px;
+		cursor: pointer;
+		margin: 0 auto;
+		display: block;
+		&:hover {
+			background: $baseselected;
+		}
+	}
+}
