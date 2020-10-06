@@ -25,6 +25,7 @@
 //=include _drawLine.js
 //=include _getCursorPosition.js
 //=include _history.js
+//=include _algorithms.js
 
 /**load file**/
 //=include _loadPalette.js

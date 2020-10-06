@@ -14,5 +14,6 @@ on('click', 'create-button', function (){
     setText('editor-mode-button', 'Choose a mode...');
     setText('palette-button', 'Choose a palette...');
     setText('preset-button', 'Choose a preset...');
-	*/
+    */
+    closeDialogue();
 });

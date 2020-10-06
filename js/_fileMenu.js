@@ -34,7 +34,7 @@ for (var i = 1; i < mainMenuItems.length; i++) {
 
                 //File Menu
                 case 'New':
-                    showDialogue('new-pixel');
+                    showDialogue('new-palette');
                     break;
                 case 'Save project':
                     //create name

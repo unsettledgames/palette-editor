@@ -437,3 +437,17 @@ svg {
 		}
 	}
 }
+
+#picker-input {
+	width:200px;
+	height:200px;
+	position:relative;
+	top:200px;
+	left: 200px;
+	z-index:100;
+}
+
+#log {
+	position:relative;
+	left:350px;	
+}

@@ -9,5 +9,3 @@ var documentCreated = false;
 var brushPreview = document.getElementById("brush-preview");
 var canvasView = document.getElementById("canvas-view");
 var popUpContainer = document.getElementById("pop-up-container");
-
-alert('Hello, world');
