@@ -54,6 +54,8 @@ function updateWarnings() {
     log.innerHTML = toSet;
 }
 
+/**********************SECTION: COLOUR SIMILARITY*********************************/
+
 function similarColours(c1, c2) {
     let c1RGB = hexToRgb(c1);
     let c2RGB = hexToRgb(c2);
@@ -173,7 +175,67 @@ function differenceCiede2000(c1, c2) {
     );
 }
 
-function RGBtoCIELAB(rgbColour) {
+/**********************SECTION: COLOUR CONVERSIONS****************************** */
+
+function rgbToHsl(col) {
+    let r = col.r;
+    let g = col.g;
+    let b = col.b;
+
+    r /= 255, g /= 255, b /= 255;
+  
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let myH, myS, myL = (max + min) / 2;
+  
+    if (max == min) {
+        myH = myS = 0; // achromatic
+    } 
+    else {
+        let d = max - min;
+        myS = myL > 0.5 ? d / (2 - max - min) : d / (max + min);
+  
+        switch (max) {
+            case r: myH = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: myH = (b - r) / d + 2; break;
+            case b: myH = (r - g) / d + 4; break;
+        }
+    
+        myH /= 6;
+    }
+  
+    return {h: myH, s: myS, v: myL };
+}
+
+  function rgbToHsv(col) {
+    let r = col.r;
+    let g = col.g; 
+    let b = col.b;
+
+    r /= 255, g /= 255, b /= 255;
+  
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let myH, myS, myV = max;
+  
+    let d = max - min;
+    myS = max == 0 ? 0 : d / max;
+  
+    if (max == min) {
+      myH = 0; // achromatic
+    } 
+    else {
+      switch (max) {
+        case r: myH = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: myH = (b - r) / d + 2; break;
+        case b: myH = (r - g) / d + 4; break;
+      }
+  
+      myH /= 6;
+    }
+  
+    return {h: myH, s: myS, v: myV};
+  }
+
+  function RGBtoCIELAB(rgbColour) {
     // Convert to XYZ first via matrix transformation
     let x = 0.412453 * rgbColour.r + 0.357580 * rgbColour.g + 0.180423 * rgbColour.b;
     let y = 0.212671 * rgbColour.r + 0.715160 * rgbColour.g + 0.072169 * rgbColour.b;
@@ -190,7 +252,6 @@ function RGBtoCIELAB(rgbColour) {
     return {l: myL, a: myA, b: myB};
 
 }
-
 function CIELABconvF(value) {
     if (value > Math.pow(6/29, 3)) {
         return Math.cbrt(value);
