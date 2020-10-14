@@ -5,6 +5,9 @@ let currentPickerMode = "rgb";
 let styleElement = document.createElement("style");
 document.getElementsByTagName("head")[0].appendChild(styleElement);
 
+// Startup updating
+updateAllSliders();
+
 /**
  * - Update label values
  * - Update sliders background
@@ -133,11 +136,8 @@ function getSliderCSS(index, sliderValues) {
                     gradientMax = 'rgba(' + rgbColour[0] + ',' + rgbColour[1] + ',' + rgbColour[2] + ',1)';
                     break;
                 case 'hsl':
-                    rgbColour = hslToRgb(sliderValues[0], sliderValues[1], 0);
-                    gradientMin = 'rgba(' + rgbColour[0] + ',' + rgbColour[1] + ',' + rgbColour[2] + ',1)';
-
-                    rgbColour = hslToRgb(sliderValues[0], sliderValues[1], 100);
-                    gradientMax = 'rgba(' + rgbColour[0] + ',' + rgbColour[1] + ',' + rgbColour[2] + ',1)';
+                    gradientMin = 'rgba(0,0,0,1)';
+                    gradientMax = 'rgba(255,255,255,1)';
                     break;
             }
 
@@ -161,8 +161,14 @@ function getSliderCSS(index, sliderValues) {
                 ret += hueGradient;
             }
             else { 
-                ret += 'linear-gradient(90deg, rgba(2,0,36,1) 0%, ' +
-                gradientMin + ' 0%, ' + gradientMax + '100%);';
+                ret += 'linear-gradient(90deg, rgba(2,0,36,1) 0%, ' + gradientMin + ' 0%, ';
+                // For hsl I also have to add a middle point
+                if (currentPickerMode == 'hsl' && index == 3) {
+                    let rgb = hslToRgb(sliderValues[0], sliderValues[1], 50);
+                    ret += 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',1) 50%,';
+                }
+                
+                ret += gradientMax + '100%);';
             }
             break;
     }
@@ -257,10 +263,18 @@ function changePickerMode(target, newMode) {
 
         slider.setAttribute("max", maxRange[i]);
     }
+
+    updateAllSliders();
 }
 
 function getSlidersValues() {
     return [parseInt(sliders[0].getElementsByTagName("input")[0].value), 
     parseInt(sliders[1].getElementsByTagName("input")[0].value), 
     parseInt(sliders[2].getElementsByTagName("input")[0].value)];
+}
+
+function updateAllSliders() {
+    for (let i=1; i<=3; i++) {
+        updateSliderValue(i);
+    }
 }
