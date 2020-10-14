@@ -65,6 +65,46 @@
         <input type = "color" id = "color1"/>
         <input type = "color" id = "color2"/>
     </div>
+
+    <div id = "colour-picker">
+        <div id = "cp-modes">
+            <button id="cp-rgb" class="cp-selected-mode" onclick="changePickerMode(this, 'rgb')">RGB</button>
+            <button id="cp-hsv" onclick="changePickerMode(this, 'hsv')">HSV</button>
+            <button id="cp-hsl" onclick="changePickerMode(this, 'hsl')">HSL</button>
+            
+            <div id="cp-colour-preview"></div>
+            <input id="cp-hex" type="text" value="#123456"/>
+        </div>
+
+        <div id = "sliders-container">
+            <div class = "cp-slider-entry">
+                <label for = "first-slider">R</label>
+                <input type="range" min="0" max="255" class="colour-picker-slider" id="first-slider" onmousemove="updateSliderValue(1)" onclick="updateSliderValue(1)"/>
+                <input type = "text" value = "128" onchange="inputChanged(this,1)"/>
+            </div>
+
+            <div class = "cp-slider-entry">
+                <label for = "second-slider">G</label>
+                <input type="range" min="0" max ="255" class="colour-picker-slider" id="second-slider" onmousemove="updateSliderValue(2)" onclick="updateSliderValue(2)"/>
+                <input type = "text" value = "128" onchange="inputChanged(this,2)"/>
+            </div>
+
+            <div class = "cp-slider-entry">
+                <label for = "third-slider">B</label>
+                <input type="range" min = "0" max = "255" class = "colour-picker-slider" id = "third-slider" onmousemove="updateSliderValue(3)" onclick="updateSliderValue(3)"/>
+                <input type = "text" value = "128" onchange="inputChanged(this,3)"/>
+            </div>
+        </div>
+
+        <div id = "cp-minipicker">
+            <input type = "range" min = "0" max = "360" id = "cp-hue-picker"/>
+            <div id = "cp-spectrum">
+
+            </div>
+        </div>
+
+    </div>
+
     <div id = "log">
         Colour infos
     </div>

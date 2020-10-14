@@ -26,6 +26,7 @@
 //=include _getCursorPosition.js
 //=include _history.js
 //=include _algorithms.js
+//=include _colorPicker.js
 
 /**load file**/
 //=include _loadPalette.js
