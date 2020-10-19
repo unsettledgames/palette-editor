@@ -297,7 +297,7 @@ function rgbToHsl(col) {
         myH /= 6;
     }
   
-    return {h: myH, s: myS, v: myL };
+    return {h: myH, s: myS, l: myL };
 }
 
   function rgbToHsv(col) {
