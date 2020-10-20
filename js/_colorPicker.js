@@ -323,8 +323,6 @@ function updateAllSliders() {
 
 function movePickerIcon(event) {
     if (event.which == 1) {
-        let pickedColour;
-        let hex
         let cursorPos = getCursorPosMinipicker(event);
         let left = (cursorPos[0] - startPickerIconPos[0][0] - 8);
         let top = (cursorPos[1] - startPickerIconPos[0][1] - 8);
@@ -333,20 +331,11 @@ function movePickerIcon(event) {
         if (left > -8 && top > -8 && left < canvasRect.width-8 && top < canvasRect.height-8){
             activePickerIcon.style["left"] = "" + left + "px";
             activePickerIcon.style["top"]= "" + top + "px";
+
+            currPickerIconPos[0] = [left, top];
         }
 
-        // Picking the colour from the cursor
-        currPickerIconPos[0] = [left, top];
-        pickedColour = miniPickerCanvas.getContext('2d').getImageData(cursorPos[0] - canvasRect.left, cursorPos[1] - canvasRect.top, 1, 1).data;
-        hex = rgbToHex(pickedColour[0], pickedColour[1], pickedColour[2]);
-        activePickerIcon.style.backgroundColor = '#' + hex;
-
-        // Update hex and sliders based on hex
-        colourValue.value = '#' + hex;
-        colourPreview.style.backgroundColor = '#' + hex;
-
-        updateSlidersByHex(hex);
-        updateMiniSlider(hex);
+        updateMiniPickerColour();
     }
 }
 
@@ -412,7 +401,44 @@ function updatePickerByHex(hex) {
 }
 
 function miniSliderInput(event) {
+    let newHex;
+    let newHsv = rgbToHsv(hexToRgb(getMiniPickerColour()));
+    let rgb;
+
+    console.log(newHsv);    
+    // Adding slider value to value
+    newHsv.v = parseInt(event.target.value);
+    // Updating hex
+    rgb = hsvToRgb(newHsv.h * 360, newHsv.s * 100, newHsv.v);
+    newHex = rgbToHex(Math.round(rgb[0]), Math.round(rgb[1]), Math.round(rgb[2]));
+
+    colourValue.value = newHex;
+
     updateMiniPickerGradient();
+    updateMiniPickerColour();
+}
+
+function updateMiniPickerColour() {
+    let hex = getMiniPickerColour();
+
+    activePickerIcon.style.backgroundColor = '#' + hex;
+
+    // Update hex and sliders based on hex
+    colourValue.value = '#' + hex;
+    colourPreview.style.backgroundColor = '#' + hex;
+
+    updateSlidersByHex(hex);
+    updateMiniSlider(hex);
+}
+
+function getMiniPickerColour() {
+    let hex;
+    let pickedColour;
+
+    pickedColour = miniPickerCanvas.getContext('2d').getImageData(currPickerIconPos[0][0] + 8, currPickerIconPos[0][1] + 8, 1, 1).data;
+    hex = rgbToHex(pickedColour[0], pickedColour[1], pickedColour[2]);
+
+    return hex;
 }
 
 function updateMiniSlider(hex) {
@@ -438,7 +464,7 @@ function updateMiniPickerGradient() {
 
     for (let i=0; i<7; i++) {
         tmp = hsvToRgb(60 * i, 100, hsv.v * 100);
-        hGrad.addColorStop(i / 6, '#' + rgbToHex(tmp[0], tmp[1], tmp[2]));
+        hGrad.addColorStop(i / 6, '#' + rgbToHex(Math.round(tmp[0]), Math.round(tmp[1]), Math.round(tmp[2])));
 
         console.log("" + i / 6);
     }
@@ -447,16 +473,18 @@ function updateMiniPickerGradient() {
 
     // Drawing sat / lum
     var vGrad = ctx.createLinearGradient(0, 0, 0, miniPickerCanvas.height);
-    vGrad.addColorStop(0.2, 'rgba(255,255,255,0)');
-    vGrad.addColorStop(0.8, 'rgba(255,255,255,1)');
-    //vGrad.addColorStop(1, 'rgba(255,255,255,1)');
+    vGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    vGrad.addColorStop(0.1, 'rgba(255,255,255,0)');
+    vGrad.addColorStop(0.9, 'rgba(255,255,255,1)');
+    vGrad.addColorStop(1, 'rgba(255,255,255,1)');
     
     ctx.fillStyle = vGrad;
     ctx.fillRect(0, 0, miniPickerCanvas.width, miniPickerCanvas.height);
 }
 
 /** COSE DA FARE: 
+ *  - minislider deve prendere input da minipicker
+ *  - slider principali devono modificare posizione del minipicker e valori hsv del minipicker
  *  - muovere cursore minipicker quando si camba il colore
  *      - Convertire hex -> rgb -> hsv e spostare il minipicker di conseguenza
- *  - cambiare spettro del minipicker quando si muove il minislider
  */
