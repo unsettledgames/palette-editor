@@ -16,14 +16,20 @@ startPickerIconPos[0] = [activePickerIcon.getBoundingClientRect().left, activePi
 // Startup updating
 updateAllSliders();
 // Fill minipicker
-updateMiniPickerGradient();
+updateMiniPickerSpectrum();
 // Fill minislider
 updateMiniSlider(colourValue.value);
 
+// Applies the styles saved in the style array to the style element in the head of the document
 function updateStyles() {
     styleElement.innerHTML = styles[0] + styles[1];
 }
 
+/** Updates the background gradients of the sliders given their value
+ *  Updates the hex colour and its preview
+ *  Updates the minipicker according to the computed hex colour
+ * 
+ */
 function updateSliderValue (sliderIndex) {
     let toUpdate;
     let slider;
@@ -50,7 +56,6 @@ function updateSliderValue (sliderIndex) {
             break;
         case 'hsv':
             let tmpRgb = hsvToRgb(sliderValues[0], sliderValues[1], sliderValues[2]);
-            console.log(tmpRgb);
             hexColour = rgbToHex(parseInt(tmpRgb[0]), parseInt(tmpRgb[1]), parseInt(tmpRgb[2]));
             break;
         case 'hsl':
@@ -77,6 +82,7 @@ function updateSliderValue (sliderIndex) {
     updatePickerByHex(colourValue.value);
 }
 
+// Calculates the css gradient for a slider
 function getSliderCSS(index, sliderValues) {
     let ret = 'input[type=range]#';
     let sliderId;
@@ -184,6 +190,7 @@ function getSliderCSS(index, sliderValues) {
     return ret;
 }
 
+// Computes the hue gradient used for hsl
 function getHueGradientHSL(sliderValues) {
     return 'linear-gradient(90deg, rgba(2,0,36,1) 0%, \
     hsl(0,' + sliderValues[1] + '%,' + sliderValues[2]+ '%) 0%, \
@@ -194,6 +201,7 @@ function getHueGradientHSL(sliderValues) {
     hsl(300,'+ sliderValues[1] + '%,' + sliderValues[2]+ '%) 83.333333%, \
     hsl(360,'+ sliderValues[1] + '%,' + sliderValues[2]+ '%) 100%);';
 }
+// Computes the hue gradient used for hsv
 function getHueGradientHSV(sliderValues) {
     let col = hsvToRgb(0, sliderValues[1], sliderValues[2]);
     let ret = 'linear-gradient(90deg, rgba(2,0,36,1) 0%, ';
@@ -221,6 +229,7 @@ function getHueGradientHSV(sliderValues) {
     return ret;
 }
 
+// Fired when the values in the labels are changed
 function inputChanged(target, index) {
     let sliderIndex = index - 1;
 
@@ -228,6 +237,7 @@ function inputChanged(target, index) {
     updateSliderValue(index);
 }
 
+// Updates the colour model used to pick colours
 function changePickerMode(target, newMode) {
     let maxRange;
     let colArray;
@@ -308,12 +318,14 @@ function changePickerMode(target, newMode) {
     updateAllSliders();
 }
 
+// Returns an array containing the values of the sliders
 function getSlidersValues() {
     return [parseInt(sliders[0].getElementsByTagName("input")[0].value), 
     parseInt(sliders[1].getElementsByTagName("input")[0].value), 
     parseInt(sliders[2].getElementsByTagName("input")[0].value)];
 }
 
+// Updates every slider
 function updateAllSliders() {
     for (let i=1; i<=3; i++) {
         updateSliderValue(i);
@@ -321,6 +333,7 @@ function updateAllSliders() {
 }
 /******************SECTION: MINIPICKER******************/
 
+// Moves the picker icon according to the mouse position on the canvas
 function movePickerIcon(event) {
     if (event.which == 1) {
         let cursorPos = getCursorPosMinipicker(event);
@@ -339,6 +352,7 @@ function movePickerIcon(event) {
     }
 }
 
+// Updates the main sliders given a hex value computed with the minipicker
 function updateSlidersByHex(hex) {
     let colour;
     let mySliders = [sliders[0].getElementsByTagName("input")[0], 
@@ -377,6 +391,7 @@ function updateSlidersByHex(hex) {
     updateAllSliders();
 }
 
+// Gets the position of the picker cursor relative to the canvas
 function getCursorPosMinipicker(e) {
     var x;
     var y;
@@ -396,16 +411,32 @@ function getCursorPosMinipicker(e) {
     return [Math.round(x), Math.round(y)];
 }
 
+// Updates the minipicker given a hex computed by the main sliders
+// Moves the cursor 
 function updatePickerByHex(hex) {
+    let hsv = rgbToHsv(hexToRgb(hex));
+    let xPos = miniPickerCanvas.getBoundingClientRect().width * hsv.h - 8;
+    let yPos = miniPickerCanvas.getBoundingClientRect().height * hsv.s - 8;
 
+    console.log("called");
+
+    miniPickerSlider.value = hsv.v * 100;
+
+    activePickerIcon.style.left = '' + xPos + 'px';
+    activePickerIcon.style.top = '' + (miniPickerCanvas.getBoundingClientRect().height - yPos) + 'px';
+
+    currPickerIconPos[0][0] = xPos;
+    currPickerIconPos[0][1] = yPos;
+
+    updateMiniSlider(hex);
 }
 
+// Fired when the value of the minislider changes: updates the spectrum gradient and the hex colour
 function miniSliderInput(event) {
     let newHex;
     let newHsv = rgbToHsv(hexToRgb(getMiniPickerColour()));
     let rgb;
 
-    console.log(newHsv);    
     // Adding slider value to value
     newHsv.v = parseInt(event.target.value);
     // Updating hex
@@ -414,10 +445,11 @@ function miniSliderInput(event) {
 
     colourValue.value = newHex;
 
-    updateMiniPickerGradient();
+    updateMiniPickerSpectrum();
     updateMiniPickerColour();
 }
 
+// Updates the hex colour after having changed the minislider (MERGE)
 function updateMiniPickerColour() {
     let hex = getMiniPickerColour();
 
@@ -431,6 +463,7 @@ function updateMiniPickerColour() {
     updateMiniSlider(hex);
 }
 
+// Returns the current colour of the minipicker
 function getMiniPickerColour() {
     let hex;
     let pickedColour;
@@ -441,9 +474,9 @@ function getMiniPickerColour() {
     return hex;
 }
 
+// Update the background gradient of the slider in the minipicker
 function updateMiniSlider(hex) {
     let rgb = hexToRgb(hex);
-    console.log("sus");
 
     styles[1] = "input[type=range]#cp-minipicker-slider::-webkit-slider-runnable-track { background: rgb(2,0,36);";
     styles[1] += "background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,0,0,1) 0%, " +
@@ -452,7 +485,8 @@ function updateMiniSlider(hex) {
     updateStyles();
 }
 
-function updateMiniPickerGradient() {
+// Updates the gradient of the spectrum canvas in the minipicker
+function updateMiniPickerSpectrum() {
     let ctx = miniPickerCanvas.getContext('2d');
     let hsv = rgbToHsv(hexToRgb(colourValue.value));
     let tmp;
@@ -465,8 +499,6 @@ function updateMiniPickerGradient() {
     for (let i=0; i<7; i++) {
         tmp = hsvToRgb(60 * i, 100, hsv.v * 100);
         hGrad.addColorStop(i / 6, '#' + rgbToHex(Math.round(tmp[0]), Math.round(tmp[1]), Math.round(tmp[2])));
-
-        console.log("" + i / 6);
     }
     ctx.fillStyle = hGrad;
     ctx.fillRect(0, 0, miniPickerCanvas.width, miniPickerCanvas.height);
@@ -483,8 +515,6 @@ function updateMiniPickerGradient() {
 }
 
 /** COSE DA FARE: 
- *  - minislider deve prendere input da minipicker
- *  - slider principali devono modificare posizione del minipicker e valori hsv del minipicker
- *  - muovere cursore minipicker quando si camba il colore
- *      - Convertire hex -> rgb -> hsv e spostare il minipicker di conseguenza
+ *  - ISSUE: le due componenti devono sapere quando aggiornare l'altra e quando non farlo, altrimenti
+ *           si crea una catena di aggiornamenti contemporanei.
  */
