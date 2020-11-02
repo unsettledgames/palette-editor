@@ -102,7 +102,6 @@
                 <canvas id = "cp-spectrum"></canvas>
                 <div id="cp-active-icon" class="cp-picker-icon"></div>
             </div>
-            
 
             <div id = "cp-colours-previews">
                 <div class = "cp-colour-preview">
@@ -120,12 +119,12 @@
             </div>
 
             <div id = "cp-colour-picking-modes">
-                <button>Mono</button>
-                <button>Anlgs</button>
-                <button>Cmpt</button>
-                <button>Tri</button>
-                <button>Scmpt</button>
-                <button>Tetra</button>
+                <button class="cp-selected-mode" onclick="changePickingMode(event,'mono')">Mono</button>
+                <button onclick="changePickingMode(event,'analog')">Anlgs</button>
+                <button onclick="changePickingMode(event,'cmpt')">Cmpt</button>
+                <button onclick="changePickingMode(event,'tri')">Tri</button>
+                <button onclick="changePickingMode(event,'scmpt')">Scmpt</button>
+                <button onclick="changePickingMode(event,'tetra')">Tetra</button>
             </div>
         </div>
 

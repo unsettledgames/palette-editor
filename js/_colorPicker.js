@@ -2,23 +2,38 @@ let sliders = document.getElementsByClassName("cp-slider-entry");
 let colourPreview = document.getElementById("cp-colour-preview");
 let colourValue = document.getElementById("cp-hex");
 let currentPickerMode = "rgb";
+let currentPickingMode = "mono";
 let styleElement = document.createElement("style");
 let miniPickerCanvas = document.getElementById("cp-spectrum");
 let miniPickerSlider = document.getElementById("cp-minipicker-slider");
 let activePickerIcon = document.getElementById("cp-active-icon");
+let pickerIcons = [activePickerIcon];
 let startPickerIconPos = [[0,0],[0,0],[0,0],[0,0]];
 let currPickerIconPos = [[0,0], [0,0],[0,0],[0,0]];
 let styles = ["",""];
-document.getElementsByTagName("head")[0].appendChild(styleElement);
+let draggingCursor = false;
 
-startPickerIconPos[0] = [activePickerIcon.getBoundingClientRect().left, activePickerIcon.getBoundingClientRect().top];
+init();
 
-// Startup updating
-updateAllSliders();
-// Fill minipicker
-updateMiniPickerSpectrum();
-// Fill minislider
-updateMiniSlider(colourValue.value);
+function init() {
+    // Appending the palette styles
+    document.getElementsByTagName("head")[0].appendChild(styleElement);
+
+    // Saving first icon position
+    startPickerIconPos[0] = [activePickerIcon.getBoundingClientRect().left, activePickerIcon.getBoundingClientRect().top];
+    // Set the correct size of the canvas
+    miniPickerCanvas.height = miniPickerCanvas.getBoundingClientRect().height;
+
+    // Update picker position
+    updatePickerByHex(colourValue.value);   
+    // Startup updating
+    updateAllSliders();
+    // Fill minislider
+    updateMiniSlider(colourValue.value);
+    // Fill minipicker
+    updatePickerByHex(colourValue.value);  
+    updateMiniPickerSpectrum();
+}
 
 // Applies the styles saved in the style array to the style element in the head of the document
 function updateStyles() {
@@ -30,7 +45,7 @@ function updateStyles() {
  *  Updates the minipicker according to the computed hex colour
  * 
  */
-function updateSliderValue (sliderIndex) {
+function updateSliderValue (sliderIndex, updateMini = true) {
     let toUpdate;
     let slider;
     let input;
@@ -79,7 +94,11 @@ function updateSliderValue (sliderIndex) {
     }
 
     updateStyles();
-    updatePickerByHex(colourValue.value);
+
+    if (updateMini) {
+        updatePickerByHex(colourValue.value);
+        updateMiniPickerSpectrum();
+    }
 }
 
 // Calculates the css gradient for a slider
@@ -326,16 +345,18 @@ function getSlidersValues() {
 }
 
 // Updates every slider
-function updateAllSliders() {
+function updateAllSliders(updateMini=true) {
     for (let i=1; i<=3; i++) {
-        updateSliderValue(i);
+        updateSliderValue(i, updateMini);
     }
 }
 /******************SECTION: MINIPICKER******************/
 
 // Moves the picker icon according to the mouse position on the canvas
 function movePickerIcon(event) {
-    if (event.which == 1) {
+    event.preventDefault();
+
+    if (event.which == 1 || draggingCursor) {
         let cursorPos = getCursorPosMinipicker(event);
         let left = (cursorPos[0] - startPickerIconPos[0][0] - 8);
         let top = (cursorPos[1] - startPickerIconPos[0][1] - 8);
@@ -353,7 +374,7 @@ function movePickerIcon(event) {
 }
 
 // Updates the main sliders given a hex value computed with the minipicker
-function updateSlidersByHex(hex) {
+function updateSlidersByHex(hex, updateMini = true) {
     let colour;
     let mySliders = [sliders[0].getElementsByTagName("input")[0], 
         sliders[1].getElementsByTagName("input")[0], 
@@ -388,7 +409,7 @@ function updateSlidersByHex(hex) {
             break;
     }
 
-    updateAllSliders();
+    updateAllSliders(false);
 }
 
 // Gets the position of the picker cursor relative to the canvas
@@ -415,19 +436,19 @@ function getCursorPosMinipicker(e) {
 // Moves the cursor 
 function updatePickerByHex(hex) {
     let hsv = rgbToHsv(hexToRgb(hex));
-    let xPos = miniPickerCanvas.getBoundingClientRect().width * hsv.h - 8;
-    let yPos = miniPickerCanvas.getBoundingClientRect().height * hsv.s - 8;
-
-    console.log("called");
+    let xPos = miniPickerCanvas.width * hsv.h - 8;
+    let yPos = miniPickerCanvas.height * hsv.s + 8;
 
     miniPickerSlider.value = hsv.v * 100;
 
-    activePickerIcon.style.left = '' + xPos + 'px';
-    activePickerIcon.style.top = '' + (miniPickerCanvas.getBoundingClientRect().height - yPos) + 'px';
-
     currPickerIconPos[0][0] = xPos;
-    currPickerIconPos[0][1] = yPos;
+    currPickerIconPos[0][1] = miniPickerCanvas.height - yPos;
 
+    activePickerIcon.style.left = '' + xPos + 'px';
+    activePickerIcon.style.top = '' + (miniPickerCanvas.height - yPos) + 'px';
+    activePickerIcon.style.backgroundColor = '#' + getMiniPickerColour();
+    
+    updateOtherIcons();
     updateMiniSlider(hex);
 }
 
@@ -461,14 +482,17 @@ function updateMiniPickerColour() {
 
     updateSlidersByHex(hex);
     updateMiniSlider(hex);
+    updateOtherIcons();
 }
 
 // Returns the current colour of the minipicker
 function getMiniPickerColour() {
     let hex;
     let pickedColour;
+    
+     pickedColour = miniPickerCanvas.getContext('2d').getImageData(currPickerIconPos[0][0] + 8, 
+        currPickerIconPos[0][1] + 8, 1, 1).data;
 
-    pickedColour = miniPickerCanvas.getContext('2d').getImageData(currPickerIconPos[0][0] + 8, currPickerIconPos[0][1] + 8, 1, 1).data;
     hex = rgbToHex(pickedColour[0], pickedColour[1], pickedColour[2]);
 
     return hex;
@@ -490,6 +514,9 @@ function updateMiniPickerSpectrum() {
     let ctx = miniPickerCanvas.getContext('2d');
     let hsv = rgbToHsv(hexToRgb(colourValue.value));
     let tmp;
+    let white = {h:hsv.h * 360, s:0, v: parseInt(miniPickerSlider.value)};
+
+    white = hsvToRgb(white.h, white.s, white.v);
 
     ctx.clearRect(0, 0, miniPickerCanvas.width, miniPickerCanvas.height);
 
@@ -505,16 +532,112 @@ function updateMiniPickerSpectrum() {
 
     // Drawing sat / lum
     var vGrad = ctx.createLinearGradient(0, 0, 0, miniPickerCanvas.height);
-    vGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    vGrad.addColorStop(0, 'rgba(' + white[0] +',' + white[1] + ',' + white[2] + ',0)');
+    /*
     vGrad.addColorStop(0.1, 'rgba(255,255,255,0)');
     vGrad.addColorStop(0.9, 'rgba(255,255,255,1)');
-    vGrad.addColorStop(1, 'rgba(255,255,255,1)');
+    */
+    vGrad.addColorStop(1, 'rgba(' + white[0] +',' + white[1] + ',' + white[2] + ',1)');
     
     ctx.fillStyle = vGrad;
     ctx.fillRect(0, 0, miniPickerCanvas.width, miniPickerCanvas.height);
 }
 
-/** COSE DA FARE: 
- *  - ISSUE: le due componenti devono sapere quando aggiornare l'altra e quando non farlo, altrimenti
- *           si crea una catena di aggiornamenti contemporanei.
- */
+function toggleDraggingCursor() {
+    draggingCursor = !draggingCursor;
+}
+
+function changePickingMode(event, newMode) {
+    let nIcons = pickerIcons.length;
+    let canvasContainer = document.getElementById("cp-canvas-container");
+
+    // Remove selected class from previous mode
+    document.getElementById("cp-colour-picking-modes").getElementsByClassName("cp-selected-mode")[0].classList.remove("cp-selected-mode");
+    // Updating mode
+    currentPickingMode = newMode;
+    // Adding selected class to new mode
+    event.target.classList.add("cp-selected-mode");
+    
+    for (let i=1; i<nIcons; i++) {
+        pickerIcons.pop();
+        canvasContainer.removeChild(canvasContainer.children[2]);
+    }
+
+    switch (currentPickingMode)
+    {
+        case 'analog':
+            createIcon();
+            createIcon();
+            break;
+        case 'cmpt':
+            // Easiest one, add 180 to the H value and move the icon
+            createIcon();
+            break;
+        case 'tri':
+            createIcon();
+            createIcon();
+            break
+        case 'scmpt':
+            createIcon();
+            createIcon();
+            break;
+        case 'tetra':
+            for (let i=0; i<3; i++) {
+                createIcon();
+            }
+            break;
+        default:
+            console.log("How did you select the " + currentPickingMode + ", hackerman?");
+            break;
+    }
+
+    function createIcon() {
+        let newIcon = document.createElement("div");
+        newIcon.classList.add("cp-picker-icon");
+        pickerIcons.push(newIcon);
+
+        canvasContainer.appendChild(newIcon);
+    }
+}
+
+function updateOtherIcons() {
+    let currentColorHex = colourValue.value;
+    let currentColourHsv = rgbToHsv(hexToRgb(currentColorHex));
+    let newColourHsv = {h:currentColourHsv.h, s:currentColourHsv.s, v:currentColourHsv.v};
+    let newColourHexes = ['', '', ''];
+    let tmpRgb;
+
+    // Salvo tutti i 
+
+    switch (currentPickingMode)
+    {
+        case 'mono':
+            break;
+        case 'analog':
+            break;
+        case 'cmpt':
+            newColourHsv.h = ((currentColourHsv.h*360 + 120) % 360) / 360;
+            currPickerIconPos[1][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+            currPickerIconPos[1][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+            tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+            newColourHexes[0] = rgbToHex(tmpRgb[0], tmpRgb[1], tmpRgb[2]);
+            break;
+        case 'tri':
+            break
+        case 'scmpt':
+            break;
+        case 'tetra':
+            break;
+        default:
+            console.log("How did you select the " + currentPickingMode + ", hackerman?");
+            break;
+    }
+
+    for (let i=1; i<pickerIcons.length; i++) {
+        pickerIcons[i].style.left = '' + currPickerIconPos[i][0] + 'px';
+        pickerIcons[i].style.top = '' + currPickerIconPos[i][1] + 'px';
+
+        pickerIcons[i].style.backgroundColor = '#' + newColourHexes[i - 1];
+    }
+}
