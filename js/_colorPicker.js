@@ -599,6 +599,8 @@ function changePickingMode(event, newMode) {
 
         canvasContainer.appendChild(newIcon);
     }
+
+    updateOtherIcons();
 }
 
 function updateOtherIcons() {
@@ -615,6 +617,23 @@ function updateOtherIcons() {
         case 'mono':
             break;
         case 'analog':
+            // First colour
+            newColourHsv.h = (((currentColourHsv.h*360 + 45) % 360) / 360);
+
+            currPickerIconPos[1][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+            currPickerIconPos[1][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+            tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+            newColourHexes[0] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
+
+            // Second colour
+            newColourHsv.h = (((currentColourHsv.h*360 - 45) % 360) / 360);
+
+            currPickerIconPos[2][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+            currPickerIconPos[2][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+            tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+            newColourHexes[1] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
             break;
         case 'cmpt':
             newColourHsv.h = (((currentColourHsv.h*360 + 180) % 360) / 360);
@@ -624,14 +643,48 @@ function updateOtherIcons() {
 
             tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
             newColourHexes[0] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
-
-            console.log("New hex: #" + newColourHexes[0]);
             break;
         case 'tri':
+            for (let i=1; i< 3; i++) {
+                newColourHsv.h = (((currentColourHsv.h*360 + 120*i) % 360) / 360);
+
+                currPickerIconPos[i][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+                currPickerIconPos[i][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+                tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+                newColourHexes[i - 1] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
+            }
+            
             break
         case 'scmpt':
+            // First colour
+            newColourHsv.h = (((currentColourHsv.h*360 + 210) % 360) / 360);
+
+            currPickerIconPos[1][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+            currPickerIconPos[1][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+            tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+            newColourHexes[0] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
+
+            // Second colour
+            newColourHsv.h = (((currentColourHsv.h*360 + 150) % 360) / 360);
+
+            currPickerIconPos[2][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+            currPickerIconPos[2][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+            tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+            newColourHexes[1] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
             break;
         case 'tetra':
+            for (let i=1; i< 4; i++) {
+                newColourHsv.h = (((currentColourHsv.h*360 + 90*i) % 360) / 360);
+
+                currPickerIconPos[i][0] = miniPickerCanvas.width * newColourHsv.h - 8;
+                currPickerIconPos[i][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
+
+                tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
+                newColourHexes[i - 1] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
+            }
             break;
         default:
             console.log("How did you select the " + currentPickingMode + ", hackerman?");
