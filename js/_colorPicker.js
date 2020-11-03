@@ -370,6 +370,7 @@ function movePickerIcon(event) {
         }
 
         updateMiniPickerColour();
+        updateOtherIcons();
     }
 }
 
@@ -616,12 +617,15 @@ function updateOtherIcons() {
         case 'analog':
             break;
         case 'cmpt':
-            newColourHsv.h = ((currentColourHsv.h*360 + 120) % 360) / 360;
+            newColourHsv.h = (((currentColourHsv.h*360 + 180) % 360) / 360);
+
             currPickerIconPos[1][0] = miniPickerCanvas.width * newColourHsv.h - 8;
             currPickerIconPos[1][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
 
             tmpRgb = hsvToRgb(newColourHsv.h*360, newColourHsv.s*100, newColourHsv.v*100);            
-            newColourHexes[0] = rgbToHex(tmpRgb[0], tmpRgb[1], tmpRgb[2]);
+            newColourHexes[0] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
+
+            console.log("New hex: #" + newColourHexes[0]);
             break;
         case 'tri':
             break
