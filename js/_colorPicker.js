@@ -446,6 +446,11 @@ function updatePickerByHex(hex) {
     currPickerIconPos[0][0] = xPos;
     currPickerIconPos[0][1] = miniPickerCanvas.height - yPos;
 
+    if (currPickerIconPos[0][1] >= 92)
+    {
+        currPickerIconPos[0][1] = 91.999;
+    }
+
     activePickerIcon.style.left = '' + xPos + 'px';
     activePickerIcon.style.top = '' + (miniPickerCanvas.height - yPos) + 'px';
     activePickerIcon.style.backgroundColor = '#' + getMiniPickerColour();
@@ -648,7 +653,7 @@ function updateOtherIcons() {
             break;
         case 'analog':
             // First colour
-            newColourHsv.h = (((currentColourHsv.h*360 + 45) % 360) / 360);
+            newColourHsv.h = (((currentColourHsv.h*360 + 40) % 360) / 360);
 
             currPickerIconPos[1][0] = miniPickerCanvas.width * newColourHsv.h - 8;
             currPickerIconPos[1][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
@@ -657,7 +662,7 @@ function updateOtherIcons() {
             newColourHexes[0] = rgbToHex(Math.round(tmpRgb[0]), Math.round(tmpRgb[1]), Math.round(tmpRgb[2]));
 
             // Second colour
-            newColourHsv.h = (((currentColourHsv.h*360 - 45) % 360) / 360);
+            newColourHsv.h = (((currentColourHsv.h*360 - 40) % 360) / 360);
             if (newColourHsv.h < 0) {
                 newColourHsv.h += 1;
             }
@@ -724,15 +729,44 @@ function updateOtherIcons() {
             break;
     }
 
-    hexContainers[0].style.backgroundColor = colourValue.value;
-    hexContainers[0].innerHTML = colourValue.value;
-
     for (let i=1; i<pickerIcons.length; i++) {
         pickerIcons[i].style.left = '' + currPickerIconPos[i][0] + 'px';
         pickerIcons[i].style.top = '' + currPickerIconPos[i][1] + 'px';
 
         pickerIcons[i].style.backgroundColor = '#' + newColourHexes[i - 1];
-        hexContainers[i].style.backgroundColor = '#' + newColourHexes[i - 1];
-        hexContainers[i].innerHTML = '#' + newColourHexes[i - 1];
     }
+
+    if (currentPickingMode != "analog") {
+        hexContainers[0].style.backgroundColor = colourValue.value;
+        hexContainers[0].innerHTML = colourValue.value;
+
+        for (let i=0; i<pickerIcons.length - 1; i++) {
+            hexContainers[i + 1].style.backgroundColor = '#' + newColourHexes[i];
+            hexContainers[i + 1].innerHTML = '#' + newColourHexes[i];
+        }
+    }
+    // If I'm using anlogous mode, I place the current colour in the middle
+    else {
+        console.log("si si si sonooo sono qui");
+        hexContainers[1].style.backgroundColor = colourValue.value;
+        hexContainers[1].innerHTML = colourValue.value;
+
+        hexContainers[2].style.backgroundColor = '#' + newColourHexes[0];
+        hexContainers[2].innerHTML = '#' + newColourHexes[0];
+
+        hexContainers[0].style.backgroundColor = '#' + newColourHexes[1];
+        hexContainers[0].innerHTML = '#' + newColourHexes[1];
+    }
+}
+
+function getSelectedColours() {
+    let ret = [];
+
+    for (let i=0; i<hexContainers.length; i++) {
+        if (hexContainers[i] != null) {
+            ret.push(hexContainers[i].innerHTML);
+        }
+    }
+
+    return ret;
 }
