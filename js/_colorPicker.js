@@ -8,6 +8,7 @@ let miniPickerCanvas = document.getElementById("cp-spectrum");
 let miniPickerSlider = document.getElementById("cp-minipicker-slider");
 let activePickerIcon = document.getElementById("cp-active-icon");
 let pickerIcons = [activePickerIcon];
+let hexContainers = [document.getElementById("cp-colours-previews").children[0],null,null,null];
 let startPickerIconPos = [[0,0],[0,0],[0,0],[0,0]];
 let currPickerIconPos = [[0,0], [0,0],[0,0],[0,0]];
 let styles = ["",""];
@@ -551,6 +552,8 @@ function toggleDraggingCursor() {
 function changePickingMode(event, newMode) {
     let nIcons = pickerIcons.length;
     let canvasContainer = document.getElementById("cp-canvas-container");
+    // Number of hex containers to add
+    let nHexContainers;
 
     // Remove selected class from previous mode
     document.getElementById("cp-colour-picking-modes").getElementsByClassName("cp-selected-mode")[0].classList.remove("cp-selected-mode");
@@ -560,36 +563,63 @@ function changePickingMode(event, newMode) {
     event.target.classList.add("cp-selected-mode");
     
     for (let i=1; i<nIcons; i++) {
+        // Deleting extra icons
         pickerIcons.pop();
         canvasContainer.removeChild(canvasContainer.children[2]);
+
+        // Deleting extra hex containers
+        console.log("Deleting :O");
+        hexContainers[0].parentElement.removeChild(hexContainers[0].parentElement.children[1]);
+        hexContainers[i] = null;
     }
+
+    // Resetting first hex container size
+    hexContainers[0].style.width = '100%';
 
     switch (currentPickingMode)
     {
         case 'analog':
             createIcon();
             createIcon();
+
+            nHexContainers = 2;
             break;
         case 'cmpt':
             // Easiest one, add 180 to the H value and move the icon
             createIcon();
+            nHexContainers = 1;
             break;
         case 'tri':
             createIcon();
             createIcon();
+            nHexContainers = 2;
             break
         case 'scmpt':
             createIcon();
             createIcon();
+            nHexContainers = 2;
             break;
         case 'tetra':
             for (let i=0; i<3; i++) {
                 createIcon();
             }
+            nHexContainers = 3;
             break;
         default:
             console.log("How did you select the " + currentPickingMode + ", hackerman?");
             break;
+    }
+
+    // Editing the size of the first container
+    hexContainers[0].style.width = '' + 100 / (nHexContainers + 1) + '%';
+    // Adding hex preview containers
+    for (let i=0; i<nHexContainers; i++) {
+        let newContainer = document.createElement("div");
+        newContainer.classList.add("cp-colour-preview");
+        newContainer.style.width = "" + (100 / (nHexContainers + 1)) + "%";
+
+        hexContainers[0].parentElement.appendChild(newContainer);
+        hexContainers[i + 1] = newContainer;
     }
 
     function createIcon() {
@@ -628,6 +658,9 @@ function updateOtherIcons() {
 
             // Second colour
             newColourHsv.h = (((currentColourHsv.h*360 - 45) % 360) / 360);
+            if (newColourHsv.h < 0) {
+                newColourHsv.h += 1;
+            }
 
             currPickerIconPos[2][0] = miniPickerCanvas.width * newColourHsv.h - 8;
             currPickerIconPos[2][1] = miniPickerCanvas.height - (miniPickerCanvas.height * newColourHsv.s + 8);
@@ -691,10 +724,15 @@ function updateOtherIcons() {
             break;
     }
 
+    hexContainers[0].style.backgroundColor = colourValue.value;
+    hexContainers[0].innerHTML = colourValue.value;
+
     for (let i=1; i<pickerIcons.length; i++) {
         pickerIcons[i].style.left = '' + currPickerIconPos[i][0] + 'px';
         pickerIcons[i].style.top = '' + currPickerIconPos[i][1] + 'px';
 
         pickerIcons[i].style.backgroundColor = '#' + newColourHexes[i - 1];
+        hexContainers[i].style.backgroundColor = '#' + newColourHexes[i - 1];
+        hexContainers[i].innerHTML = '#' + newColourHexes[i - 1];
     }
 }
