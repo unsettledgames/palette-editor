@@ -36,6 +36,11 @@ function init() {
     updateMiniPickerSpectrum();
 }
 
+function hexUpdated() {
+    updatePickerByHex(colourValue.value);
+    updateSlidersByHex(colourValue.value);
+}
+
 // Applies the styles saved in the style array to the style element in the head of the document
 function updateStyles() {
     styleElement.innerHTML = styles[0] + styles[1];
@@ -729,6 +734,8 @@ function updateOtherIcons() {
             break;
     }
 
+    hexContainers[0].style.color = getHexPreviewColour(colourValue.value);
+
     for (let i=1; i<pickerIcons.length; i++) {
         pickerIcons[i].style.left = '' + currPickerIconPos[i][0] + 'px';
         pickerIcons[i].style.top = '' + currPickerIconPos[i][1] + 'px';
@@ -743,9 +750,10 @@ function updateOtherIcons() {
         for (let i=0; i<pickerIcons.length - 1; i++) {
             hexContainers[i + 1].style.backgroundColor = '#' + newColourHexes[i];
             hexContainers[i + 1].innerHTML = '#' + newColourHexes[i];
+            hexContainers[i + 1].style.color = getHexPreviewColour(newColourHexes[i]);
         }
     }
-    // If I'm using anlogous mode, I place the current colour in the middle
+    // If I'm using analogous mode, I place the current colour in the middle
     else {
         console.log("si si si sonooo sono qui");
         hexContainers[1].style.backgroundColor = colourValue.value;
@@ -756,6 +764,10 @@ function updateOtherIcons() {
 
         hexContainers[0].style.backgroundColor = '#' + newColourHexes[1];
         hexContainers[0].innerHTML = '#' + newColourHexes[1];
+
+        for (let i=1; i<3; i++) {
+            hexContainers[i].style.color = getHexPreviewColour(newColourHexes[i - 1]);
+        }
     }
 }
 
@@ -769,4 +781,24 @@ function getSelectedColours() {
     }
 
     return ret;
+}
+
+function getHexPreviewColour(hex) {
+    console.log("lets go");
+
+    //if brightness is over threshold, make the text dark
+    if (colorBrightness(hex) > 110) {
+        return '#332f35'
+    }
+    else {
+        return '#c2bbc7';
+    }
+
+    //take in a color and return its brightness
+    function colorBrightness (color) {
+        var r = parseInt(color.slice(1, 3), 16);
+        var g = parseInt(color.slice(3, 5), 16);
+        var b = parseInt(color.slice(5, 7), 16);
+        return Math.round(((parseInt(r) * 299) + (parseInt(g) * 587) + (parseInt(b) * 114)) / 1000);
+    }
 }
