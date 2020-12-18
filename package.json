@@ -20,6 +20,9 @@
     "gulp-sass": "^4.0.2",
     "handlebars-helper-svg": "git+https://bitbucket.org/skeddles/npm-handlebars-helper-svg-lospec-open-source.git",
     "open": "^6.0.0",
-    "sass": "^1.17.3"
+    "requirejs": "^2.3.6",
+    "sass": "^1.17.3",
+    "sortablejs": "^1.12.0",
+    "sortablejs-make": "^1.0.1"
   }
 }

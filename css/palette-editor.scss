@@ -442,7 +442,7 @@ svg {
 	width:200px;
 	height:200px;
 	position:relative;
-	top:200px;
+	top:500px;
 	left: 200px;
 	z-index:100;
 }
@@ -457,7 +457,7 @@ svg {
 	background-color:$basecolor;
 	width:300px;
 	position:relative;
-	left:400px;
+	left:800px;
 	padding:0 0 0 0;
 	margin:0 0 0 0;
 	top:-100px;
@@ -677,6 +677,49 @@ svg {
 	background-color:white;
 	z-index:2;
 	border:2px solid black;
+}
+
+/***** PALETTE *******/
+div#palette-container {
+	background-color:black;
+	resize: both;
+	position:absolute;
+	width:500px;
+	height:200px;
+	left:100px;	
+	overflow-y:scroll;
+	&::-webkit-scrollbar {
+		background: #232125;
+		width: 1em;
+	}
+	&::-webkit-scrollbar-track {
+		margin-top: -0.125em;
+		width: 1em;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: #332f35;
+		border-radius: 0.25em;
+		border: solid 0.125em #232125; //same color as scrollbar back to fake padding
+	}
+	&::-webkit-scrollbar-corner {
+		background: #232125;
+	}
+	scrollbar-color: #332f35 #232125;
+	scroll-behavior: smooth;
+}
+
+ul#palette-list {
+	list-style:none;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	position:relative;
+	display:inline-block;
+	
+	li {
+		float:left;
+		width:50px;
+		height:50px;
+	}
 }
 
 /*

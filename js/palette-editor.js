@@ -12,11 +12,11 @@
 //=include utilities/hslToRgb.js
 //=include libraries/cookies.js
 //=include _pixelEditorUtility.js
+//=include sortable.js
 
 /**init**/
 //=include _variables.js
 //=include _settings.js
-
 
 /**functions**/
 //=include _tools.js
@@ -27,6 +27,7 @@
 //=include _history.js
 //=include _algorithms.js
 //=include _colorPicker.js
+//=include _paletteBlock.js
 
 /**load file**/
 //=include _loadPalette.js
