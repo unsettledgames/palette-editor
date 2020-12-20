@@ -1,9 +1,17 @@
 let coloursList = document.getElementById("palette-list");
 let currentSquareSize = coloursList.children[0].clientWidth;
+let blockData = {blockWidth: 500, blockHeight: 200, squareSize: 50};
+let isRampSelecting = false;
+let ramps = [];
+let currentRampData = {startIndex:0, endIndex:0, name: ""};
 
+// Making the palette list sortable
 new Sortable(document.getElementById("palette-list"), {
     animation: 100
 });
+
+// Listening for the palette block resize
+new ResizeObserver(updateSizeData).observe(coloursList.parentElement);
 
 /** Listens for the mouse wheel, used to change the size of the squares in the palette list
  * 
@@ -47,6 +55,9 @@ function addSingleColour(colour) {
         li.style.width = currentSquareSize + "px";
         li.style.height = currentSquareSize + "px";
         li.style.backgroundColor = colour;
+        li.addEventListener("mousedown", startRampSelection);
+        li.addEventListener("mouseup", endRampSelection);
+        li.addEventListener("mousemove", updateRampSelection);
 
         coloursList.appendChild(li);
     }
@@ -64,8 +75,39 @@ function addColours() {
     }
 }
 
+function startRampSelection(mouseEvent) {
+    if (mouseEvent.which == 3) {
+        let index = getElementIndex(mouseEvent.target);
 
+        isRampSelecting = true;
+        currentRampData.startIndex = index;
+        currentRampData.endIndex = index;
+    }
+}
 
+function updateRampSelection(mouseEvent) {
+    if (mouseEvent.which == 3) {
+        currentRampData.endIndex = getElementIndex(mouseEvent.target);
+    }
+}
+
+function endRampSelection(mouseEvent) {
+    if (mouseEvent.which == 3) {
+        isRampSelecting = false;   
+
+        console.log(currentRampData);
+    }
+}
+
+function getElementIndex(element) {
+    for (let i=0; i<coloursList.childElementCount; i++) {
+        if (element == coloursList.children[i]) {
+            return i;
+        }
+    }
+
+    alert("Couldn't find the selected colour");
+}
 
 /** TODO:
  *      - Select multiple colours
@@ -77,6 +119,7 @@ function addColours() {
  *                  - Select colour and name for the label
  *      - Add class to selected colour
  *      - Remove selected colour(s) (button on the right)
+ *          - A palette shouldn't have less than 2 colours
  *      - Gradient between two colours
  *      - Sort colours by
  *          - Ramps (see C# palette sorter)
@@ -94,11 +137,24 @@ function addColours() {
  *      - Update picker with selected colour
  *      - Edit colour (edits the current square without having to delete it and add it back)
  *      - Update all outlines (fired on the palette resizing)
- *      - See if a colour is the first one or the last one in a row (used to draw the outline)
- *          - Keep size data 
- *          - Get square relative position
  */
 
+ function updateSizeData() {
+    blockData.blockHeight = coloursList.parentElement.clientHeight;
+    blockData.blockWidth = coloursList.parentElement.clientWidth;
+    blockData.squareSize = coloursList.children[0].clientWidth;
+
+    getColourCoordinates(5);
+ }
+
+ function getColourCoordinates(index) {
+    let yIndex = Math.floor(index / Math.floor(blockData.blockWidth / blockData.squareSize));
+    let xIndex = Math.floor(index % Math.floor(blockData.blockWidth / blockData.squareSize));
+
+    console.log([xIndex, yIndex]);
+
+    return [xIndex, yIndex];
+ }
 
 
 function resizeSquares(mouseEvent) {
@@ -111,6 +167,8 @@ function resizeSquares(mouseEvent) {
         coloursList.children[i].style.width = coloursList.children[i].clientWidth + amount + "px";
         coloursList.children[i].style.height = coloursList.children[i].clientHeight + amount + "px";
     }
+
+    updateSizeData();
 }
 
 
