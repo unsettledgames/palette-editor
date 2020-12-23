@@ -67,18 +67,38 @@
     </div>
 
     <div id = "palette-block">
+ 
+        <ul id = "pb-ramp-options" class = "pb-submenu">
+            <li onclick="reverseColours()">Reverse</li>
+            <li onclick="quantizeDialogue()">Quantize</li>
+            <li onclick="rampDialogue()">Create ramp</li>
+            <li onclick="createGradient()">Create gradient</li>
+        </ul>
+
+        <ul id = "pb-ramp-dialogue" class = "pb-submenu">
+            <li>
+                <div class = "pb-input-entry">
+                    <span>Enter a name for the ramp</span><input type="text"/>
+                </div>
+                <div class = "pb-input-entry">
+                    <span>Pick a colour for the entry</span><input type="color"/>
+                </div>
+            </li>
+        </ul>
+
         <div id = "palette-container" onresize="updateSizeData()">
             <ul id = "palette-list">
-                <li style = "background-color:rgb(0,0,0)" onmousedown="startRampSelection(this)"
-                    onmousemove="updateRampSelection(this)" onmouseup="endRampSelection(this)"></li>
-                <li style = "background-color:rgb(255,255,255)" onmousedown="startRampSelection(this)"
-                    onmousemove="updateRampSelection(this)" onmouseup="endRampSelection(this)"></li>
+                <li style = "background-color:rgb(255,0,0);width:50px;height:50px;" onmousedown="startRampSelection(event)"
+                    onmousemove="updateRampSelection(event)" onmouseup="endRampSelection(event)"></li>
+                <li style = "background-color:rgb(0,255,0);width:50px;height:50px;" onmousedown="startRampSelection(event)"
+                    onmousemove="updateRampSelection(event)" onmouseup="endRampSelection(event)"></li>
             </ul>
         </div>
         
         <div id="pb-options">
             <ul id = "palette-options">
-                <li><button title="Add colours to palette" onclick="addColours()">{{svg "plus.svg" width="15" height="15"}}</button></li>
+                <li><button title="Add colours to palette" onclick="addColours()">{{svg "plus.svg" width="15px" height="15px"}}</button></li>
+                <li><button title="Remove colours from palette" onclick="removeColours()">{{svg "minus.svg" width="15px" height="15px"}}</button></li>
             </ul>
         </div>
     </div>

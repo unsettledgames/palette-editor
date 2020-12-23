@@ -687,6 +687,31 @@ div#palette-block {
 	display:flex;
 }
 
+ul.pb-submenu {
+	list-style:none;
+	position:fixed;
+	background-color: $basecolor;
+	color: $basetext;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	left:100px;
+	width:150px;
+
+	li {
+		padding:5px;
+		cursor:pointer;
+	}
+	
+	li:hover {
+		color:$basehovertext;
+		background-color:$baseselected;
+	}
+}
+
+ul#pb-ramp-options {
+	
+}
+
 div#pb-options {
 	float:right;
 	position:relative;
@@ -779,6 +804,7 @@ ul#palette-list {
 		float:left;
 		width:50px;
 		height:50px;
+		border:none;
 
 		min-width:20px;
 		min-height:20px;

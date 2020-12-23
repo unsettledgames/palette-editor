@@ -3,7 +3,7 @@ let currentSquareSize = coloursList.children[0].clientWidth;
 let blockData = {blockWidth: 500, blockHeight: 200, squareSize: 50};
 let isRampSelecting = false;
 let ramps = [];
-let currentRampData = {startIndex:0, endIndex:0, name: ""};
+let currentSelection = {startIndex:0, endIndex:0, startCoords:[], endCoords: [], name: "", color: ""};
 
 // Making the palette list sortable
 new Sortable(document.getElementById("palette-list"), {
@@ -34,15 +34,12 @@ function hasColour(colour) {
         let currentCol = coloursList.children[i].style.backgroundColor;
         let currentHex = cssToHex(currentCol);
 
-        console.log(colour + ", " + currentHex);
-
         if (currentHex == colour) {
             return true;
         }
     }
     return false;
 }
-
 
 /** Adds a single colour to the palette
  * 
@@ -67,7 +64,6 @@ function addSingleColour(colour) {
  * 
  */
 function addColours() {
-    // TODO: check that colour is not already in the palette
     let colours = getSelectedColours();
     
     for (let i=0; i<colours.length; i++) {
@@ -75,27 +71,109 @@ function addColours() {
     }
 }
 
+/** Removes all the currently selected colours from the palette
+ * 
+ */
+function removeColours() {
+    let startIndex = currentSelection.startIndex;
+    let endIndex = currentSelection.endIndex;
+
+    if (startIndex > endIndex) {
+        let tmp = startIndex;
+        startIndex = endIndex;
+        endIndex = tmp;
+    }
+
+    for (let i=startIndex; i<=endIndex; i++) {
+        coloursList.removeChild(coloursList.children[startIndex]);
+    }
+    clearBorders();
+
+    // TODO: make it so that ramps update correctly (change start and end indexes if necessary)
+}
+
+/** Starts selecting a ramp. Saves the data needed to draw the outline.
+ * 
+ * @param {*} mouseEvent 
+ */
 function startRampSelection(mouseEvent) {
     if (mouseEvent.which == 3) {
         let index = getElementIndex(mouseEvent.target);
 
         isRampSelecting = true;
-        currentRampData.startIndex = index;
-        currentRampData.endIndex = index;
+        currentSelection.startIndex = index;
+        currentSelection.endIndex = index;
     }
 }
 
 function updateRampSelection(mouseEvent) {
-    if (mouseEvent.which == 3) {
-        currentRampData.endIndex = getElementIndex(mouseEvent.target);
+    if (mouseEvent != null && mouseEvent.which == 3) {
+        currentSelection.endIndex = getElementIndex(mouseEvent.target);
+    }
+    
+    if (mouseEvent == null || mouseEvent.which == 3) {
+        let startCoords = getColourCoordinates(currentSelection.startIndex);
+        let endCoords = getColourCoordinates(currentSelection.endIndex);
+
+        let startIndex = currentSelection.startIndex;
+        let endIndex = currentSelection.endIndex;
+
+        if (currentSelection.startIndex > endIndex) {
+            let tmp = startIndex;
+            startIndex = endIndex;
+            endIndex = tmp;
+
+            tmp = startCoords;
+            startCoords = endCoords;
+            endCoords = tmp;
+        }
+
+        clearBorders();
+
+        for (let i=startIndex; i<=endIndex; i++) {
+            let currentSquare = coloursList.children[i];
+            let currentCoords = getColourCoordinates(i);
+            let borderStyle = "4px solid white";
+            let bordersToSet = [];        
+
+            // Deciding which borders to use to make the outline
+            if (i == 0 || i == startIndex) {
+                bordersToSet.push("border-left");
+            }
+            if (currentCoords[1] == startCoords[1] || ((currentCoords[1] == startCoords[1] + 1)) && currentCoords[0] < startCoords[0]) {
+                bordersToSet.push("border-top");
+            }
+            if (currentCoords[1] == endCoords[1] || ((currentCoords[1] == endCoords[1] - 1)) && currentCoords[0] > endCoords[0]) {
+                bordersToSet.push("border-bottom");
+            }
+            if ((i == coloursList.childElementCount - 1) || (currentCoords[0] == Math.floor(blockData.blockWidth / blockData.squareSize) - 1) 
+                || i == endIndex) {
+                bordersToSet.push("border-right");
+            }
+            if (bordersToSet != []) {
+                console.log("qui");
+                currentSquare.style["box-sizing"] = "border-box";
+
+                for (let i=0; i<bordersToSet.length; i++) {
+                    currentSquare.style[bordersToSet[i]] = borderStyle;
+                }
+            }
+        }
+    }
+}
+function clearBorders() {
+    for (let i=0; i<coloursList.childElementCount; i++) {
+        // Resetting borders
+        coloursList.children[i].style["border-top"] = "none";
+        coloursList.children[i].style["border-left"] = "none";
+        coloursList.children[i].style["border-right"] = "none";
+        coloursList.children[i].style["border-bottom"] = "none";
     }
 }
 
 function endRampSelection(mouseEvent) {
     if (mouseEvent.which == 3) {
-        isRampSelecting = false;   
-
-        console.log(currentRampData);
+        isRampSelecting = false;
     }
 }
 
@@ -111,16 +189,13 @@ function getElementIndex(element) {
 
 /** TODO:
  *      - Select multiple colours
- *          - OnDragStart: save first colour, OnDragEnd: save last colour, draw an outline around the selected colours
  *          - Right click opens a menu
  *              - Reverse colours
  *              - Quantize
+ *              - Gradient between two colours
  *              - Create ramp
  *                  - Select colour and name for the label
  *      - Add class to selected colour
- *      - Remove selected colour(s) (button on the right)
- *          - A palette shouldn't have less than 2 colours
- *      - Gradient between two colours
  *      - Sort colours by
  *          - Ramps (see C# palette sorter)
  *          - Value
@@ -136,7 +211,6 @@ function getElementIndex(element) {
  * UTILITY FUNCTIONS:
  *      - Update picker with selected colour
  *      - Edit colour (edits the current square without having to delete it and add it back)
- *      - Update all outlines (fired on the palette resizing)
  */
 
  function updateSizeData() {
@@ -144,14 +218,12 @@ function getElementIndex(element) {
     blockData.blockWidth = coloursList.parentElement.clientWidth;
     blockData.squareSize = coloursList.children[0].clientWidth;
 
-    getColourCoordinates(5);
+    updateRampSelection();
  }
 
  function getColourCoordinates(index) {
     let yIndex = Math.floor(index / Math.floor(blockData.blockWidth / blockData.squareSize));
     let xIndex = Math.floor(index % Math.floor(blockData.blockWidth / blockData.squareSize));
-
-    console.log([xIndex, yIndex]);
 
     return [xIndex, yIndex];
  }
@@ -164,8 +236,9 @@ function resizeSquares(mouseEvent) {
     for (let i=0; i<coloursList.childElementCount; i++) {
         let currLi = coloursList.children[i];
 
-        coloursList.children[i].style.width = coloursList.children[i].clientWidth + amount + "px";
-        coloursList.children[i].style.height = coloursList.children[i].clientHeight + amount + "px";
+        currLi.style["box-sizing"] = "content-box";
+        currLi.style.width = currLi.clientWidth + amount + "px";
+        currLi.style.height = currLi.clientHeight + amount + "px";
     }
 
     updateSizeData();
