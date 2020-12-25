@@ -61,32 +61,133 @@
         </li>
     </ul>
 
+    <div id="pop-up-container" id = "new-palette-container">
+        <!-- NEW PALETTE -->
+        <div id="new-palette">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>New Palette</h1>
+            
+            <h2>Preset</h2>
+            hehe choose your preset pls
+            
+            <h2>Restrictions</h2>
+            You like making your life harder? Choose a restriction
+
+            <div id="new-pixel-warning">Creating a new palette will discard the current one.</div>
+            <div>
+                <button id="create-button" class="default">Create</button>
+            </div>
+        </div>
+
+        <!-- CREATE RAMP -->
+        <div id="create-ramp">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>Create ramp</h1>
+            
+            <div class="pop-up-input">
+                <div>
+                    Ramp name or description: <input id="pb-ramp-name" type="text"/>
+                </div>
+                
+                <div>
+                    Ramp label colour: <input id="pb-ramp-colour" type="color"/>
+                </div>
+
+                <div class="pop-up-confirm">
+                    <button id="create-ramp-button" class="default" onclick="saveRamp()">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="help">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>Help</h1>
+            <h2>Hotkeys</h2>
+            <ul>
+                <li>Pencil: <span class="keyboard-key">B</span> or <span class="keyboard-key">1</span></li>
+                <li>Fill: <span class="keyboard-key">F</span> or <span class="keyboard-key">2</span></li>
+                <li>Eyedropper: <span class="keyboard-key">E</span> or <span class="keyboard-key">3</span></li>
+                <li>Pan: <span class="keyboard-key">P</span> or <span class="keyboard-key">M</span> or <span class="keyboard-key">4</span></li>
+                <li>Zoom: <span class="keyboard-key">Z</span> or <span class="keyboard-key">5</span></li>
+                <li>Undo: Ctrl + <span class="keyboard-key">Z</span></li>
+                <li>Redo: Ctrl + <span class="keyboard-key">Y</span> or Ctrl + Alt + <span class="keyboard-key">Z</span></li>
+            </ul>
+            <h2>Mouse Shortcuts</h2>
+            <ul>
+                <li>Space + Click - Pan</li>
+                <li>Scroll Wheel - Zoom</li>
+            </ul>
+        </div>
+        <div id="about">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>About Lospec Palette Editor</h1>
+            <div>version 1.1.0</div>
+			<!-- TODO: add description of the tool-->
+			<!--
+            <p>This is a web-based tool for creating and editing pixel art.</p>
+            <p>The goal of this tool is to be an accessible and intuitive tool that's simple enough for a first time pixel artist while still being usable enough for a veteran. </p>
+            <p>In the future I hope to add enough features to become a full fledged pixel art editor, with everything an artist could need.</p>
+            <h1>About Lospec</h1>
+            <p>Lospec is a website created to host tools for pixel artists. To see more of our tools, visit our <a href="/">homepage</a>. To hear about any 
+            es or new tools, follow us on <a href="http://twitter.com/lospecofficial">Twitter</a>.</p>
+			-->
+        </div>
+        <div id="changelog">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+
+			<h1>Changelog</h1>
+            {{#each changelog}}
+            	<h2>Version {{@key}}</h2>
+            	<ul>{{#each this}}
+                	<li>{{change}} <span class="weak">- {{author}}</span></li>
+            	{{/each}}</ul>
+            {{/each}}
+        </div>
+        <div id="credits">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>Credits</h1>
+            <h2>Icons</h2>
+			<!-- TODO: credit icon artists
+            <ul>
+                <li><div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div></li>
+                <li><div>Font Awesome by Dave Gandy - <a href="http://fontawesome.io">http://fontawesome.io</a></div></li>
+                <li><div>Icons made by <a href="http://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div></li>
+            </ul>-->
+        </div>
+        <div id="settings">
+            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
+            <h1>Settings</h1>
+
+            <div id="settings-container">
+                <h2>History</h2>
+                <div class = "settings-entry">
+                    <label for="setting-numberOfHistoryStates">Number of History States</label> <input id="setting-numberOfHistoryStates" value="20" autocomplete="off" />
+                </div>
+            </div>
+
+            <p id="cookies-disabled-warning">Your browsers cookies are disabled, settings will be lost upon closing this page.</p>
+
+            <div>
+                <button id="save-settings" class="default">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div id = "picker-input">
         <input type = "color" id = "color1"/>
         <input type = "color" id = "color2"/>
     </div>
 
     <div id = "palette-block">
- 
         <ul id = "pb-ramp-options" class = "pb-submenu">
-            <li onclick="reverseColours()">Reverse</li>
-            <li onclick="quantizeDialogue()">Quantize</li>
-            <li onclick="rampDialogue()">Create ramp</li>
-            <li onclick="createGradient()">Create gradient</li>
-        </ul>
-
-        <ul id = "pb-ramp-dialogue" class = "pb-submenu">
-            <li>
-                <div class = "pb-input-entry">
-                    <span>Enter a name for the ramp</span><input type="text"/>
-                </div>
-                <div class = "pb-input-entry">
-                    <span>Pick a colour for the entry</span><input type="color"/>
-                </div>
-            </li>
+            <li class="pb-not-menu" onclick="reverseColours()">Reverse</li>
+            <li class="pb-not-menu"  onclick="quantizeDialogue()">Quantize</li>
+            <li class="pb-not-menu"  onclick="showDialogue('create-ramp')">Create ramp</li>
+            <li class="pb-not-menu"  onclick="createGradient()">Create gradient</li>
         </ul>
 
         <div id = "palette-container" onresize="updateSizeData()">
+            <div id = "pb-labels"></div>
             <ul id = "palette-list">
                 <li style = "background-color:rgb(255,0,0);width:50px;height:50px;" onmousedown="startRampSelection(event)"
                     onmousemove="updateRampSelection(event)" onmouseup="endRampSelection(event)"></li>
@@ -176,93 +277,6 @@
       <input id="open-image-browse-holder" type="file" accept="image/png, image/gif, .lpe"/>
       <input id="load-palette-browse-holder" type="file" accept="image/png, image/gif"/>
       <canvas id="load-palette-canvas-holder"></canvas>
-    </div>
-
-    <div id="pop-up-container" id = "new-pixel-container">
-        <!-- NEW PIXEL -->
-		<!-- TODO: Is this necessary? -->
-        <div id="new-palette">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-            <h1>New Palette</h1>
-
-            <div id="new-pixel-warning">Creating a new palette will discard your current one.</div>
-            <div>
-                <button id="create-button" class="default">Create</button>
-            </div>
-        </div>
-
-        <div id="help">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-            <h1>Help</h1>
-            <h2>Hotkeys</h2>
-            <ul>
-                <li>Pencil: <span class="keyboard-key">B</span> or <span class="keyboard-key">1</span></li>
-                <li>Fill: <span class="keyboard-key">F</span> or <span class="keyboard-key">2</span></li>
-                <li>Eyedropper: <span class="keyboard-key">E</span> or <span class="keyboard-key">3</span></li>
-                <li>Pan: <span class="keyboard-key">P</span> or <span class="keyboard-key">M</span> or <span class="keyboard-key">4</span></li>
-                <li>Zoom: <span class="keyboard-key">Z</span> or <span class="keyboard-key">5</span></li>
-                <li>Undo: Ctrl + <span class="keyboard-key">Z</span></li>
-                <li>Redo: Ctrl + <span class="keyboard-key">Y</span> or Ctrl + Alt + <span class="keyboard-key">Z</span></li>
-            </ul>
-            <h2>Mouse Shortcuts</h2>
-            <ul>
-                <li>Space + Click - Pan</li>
-                <li>Scroll Wheel - Zoom</li>
-            </ul>
-        </div>
-        <div id="about">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-            <h1>About Lospec Palette Editor</h1>
-            <div>version 1.1.0</div>
-			<!-- TODO: add description of the tool-->
-			<!--
-            <p>This is a web-based tool for creating and editing pixel art.</p>
-            <p>The goal of this tool is to be an accessible and intuitive tool that's simple enough for a first time pixel artist while still being usable enough for a veteran. </p>
-            <p>In the future I hope to add enough features to become a full fledged pixel art editor, with everything an artist could need.</p>
-            <h1>About Lospec</h1>
-            <p>Lospec is a website created to host tools for pixel artists. To see more of our tools, visit our <a href="/">homepage</a>. To hear about any 
-            es or new tools, follow us on <a href="http://twitter.com/lospecofficial">Twitter</a>.</p>
-			-->
-        </div>
-        <div id="changelog">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-
-			<h1>Changelog</h1>
-            {{#each changelog}}
-            	<h2>Version {{@key}}</h2>
-            	<ul>{{#each this}}
-                	<li>{{change}} <span class="weak">- {{author}}</span></li>
-            	{{/each}}</ul>
-            {{/each}}
-        </div>
-        <div id="credits">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-            <h1>Credits</h1>
-            <h2>Icons</h2>
-			<!-- TODO: credit icon artists
-            <ul>
-                <li><div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div></li>
-                <li><div>Font Awesome by Dave Gandy - <a href="http://fontawesome.io">http://fontawesome.io</a></div></li>
-                <li><div>Icons made by <a href="http://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div></li>
-            </ul>-->
-        </div>
-        <div id="settings">
-            <button class="close-button">{{svg "x.svg" width="20" height="20"}}</button>
-            <h1>Settings</h1>
-
-            <div id="settings-container">
-                <h2>History</h2>
-                <div class = "settings-entry">
-                    <label for="setting-numberOfHistoryStates">Number of History States</label> <input id="setting-numberOfHistoryStates" value="20" autocomplete="off" />
-                </div>
-            </div>
-
-            <p id="cookies-disabled-warning">Your browsers cookies are disabled, settings will be lost upon closing this page.</p>
-
-            <div>
-                <button id="save-settings" class="default">Save</button>
-            </div>
-        </div>
     </div>
 
     <script>

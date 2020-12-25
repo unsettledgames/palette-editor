@@ -215,19 +215,43 @@ svg {
 	background-color: rgba(35, 32, 36, 0.75);
 	display: none;
 	color: $basetext;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
 	cursor: default;
+
 	&>div {
+		margin: 0 0 0 0;
 		background: $basecolor;
 		border-radius: 3px;
 		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 		width: 400px;
 		padding: 20px;
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
 		display: none;
+		left:50%;
+		top:50%;
+		transform: translate(-50%, -50%);
 	}
+
+	div.pop-up-input {
+		div {
+			display: flex;
+			align-items: center;
+			width:100%;
+			margin-bottom:10px;
+
+			input {
+				margin-left:auto;
+				width:40%;
+			}
+		}
+
+		div.pop-up-confirm {
+			width:100%;
+			justify-content:center;
+		}
+	}
+
 	h1 {
 		margin: 0 0 10px;
 		color: lighten($basecolor, 100%);
@@ -689,27 +713,77 @@ div#palette-block {
 
 ul.pb-submenu {
 	list-style:none;
-	position:fixed;
+	position:absolute;
 	background-color: $basecolor;
 	color: $basetext;
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
 	left:100px;
 	width:150px;
+	display:none;
 
 	li {
 		padding:5px;
 		cursor:pointer;
 	}
 	
-	li:hover {
+	li.pb-not-menu:hover {
 		color:$basehovertext;
 		background-color:$baseselected;
+	}
+	
+	div.pb-input-entry {
+		input {
+			display:block;
+			float:right;
+		}
 	}
 }
 
 ul#pb-ramp-options {
-	
+	display:none;
+	z-index:2;
+}
+
+ul#pb-ramp-dialogue {
+	width:250px;
+
+	div {
+		display:flex;
+		vertical-align: middle;
+		height:25px;
+	}
+	span {
+		width:60%;
+		display:flex;
+		vertical-align: middle;
+	}
+
+	input {
+		height:20px;
+		width:40%;
+		float:right;
+	}
+	div.pb-submit-container {
+		display:block;
+		height:auto;
+		position:relative;
+		width:100%;
+		text-align:center;
+		margin-bottom:10px;
+	}
+	button {
+		background: $basehover;
+		border: none;
+		border-radius: 4px;
+		color: $basehovertext;
+		padding: 10px 20px;
+		cursor: pointer;
+		margin: 20px 0 0 10px;
+		&:hover {
+			background: $baseselected;
+		}
+	}
 }
 
 div#pb-options {
@@ -811,6 +885,11 @@ ul#palette-list {
 		max-width:75px;
 		max-height:75px;
 	}
+}
+
+#pb-labels {
+	position:absolute;
+	z-index:3;
 }
 
 /*

@@ -1,9 +1,13 @@
 let coloursList = document.getElementById("palette-list");
+
+let rampMenu = document.getElementById("pb-ramp-options");
+let pbRampDialogue = document.getElementById("pb-ramp-dialogue");
+
 let currentSquareSize = coloursList.children[0].clientWidth;
 let blockData = {blockWidth: 500, blockHeight: 200, squareSize: 50};
 let isRampSelecting = false;
 let ramps = [];
-let currentSelection = {startIndex:0, endIndex:0, startCoords:[], endCoords: [], name: "", color: ""};
+let currentSelection = {startIndex:0, endIndex:0, startCoords:[], endCoords: [], name: "", colour: "", label: null};
 
 // Making the palette list sortable
 new Sortable(document.getElementById("palette-list"), {
@@ -30,7 +34,6 @@ coloursList.parentElement.addEventListener("wheel", function (mouseEvent) {
  */ 
 function hasColour(colour) {
     for (let i=0; i<coloursList.childElementCount; i++) {
-        
         let currentCol = coloursList.children[i].style.backgroundColor;
         let currentHex = cssToHex(currentCol);
 
@@ -101,11 +104,19 @@ function startRampSelection(mouseEvent) {
         let index = getElementIndex(mouseEvent.target);
 
         isRampSelecting = true;
+
         currentSelection.startIndex = index;
         currentSelection.endIndex = index;
+
+        currentSelection.startCoords = getColourCoordinates(index);
+        currentSelection.endCoords = getColourCoordinates(index);
     }
 }
 
+/** Updates the outline for the current selection.
+ * 
+ * @param {*} mouseEvent 
+ */
 function updateRampSelection(mouseEvent) {
     if (mouseEvent != null && mouseEvent.which == 3) {
         currentSelection.endIndex = getElementIndex(mouseEvent.target);
@@ -161,6 +172,9 @@ function updateRampSelection(mouseEvent) {
         }
     }
 }
+/** Removes all the borders from all the squares
+ * 
+ */
 function clearBorders() {
     for (let i=0; i<coloursList.childElementCount; i++) {
         // Resetting borders
@@ -171,30 +185,81 @@ function clearBorders() {
     }
 }
 
+/** Ends the current selection, opens the ramp menu 
+ * 
+ * @param {*} mouseEvent 
+ */
 function endRampSelection(mouseEvent) {
     if (mouseEvent.which == 3) {
+        // I'm not selecting a ramp anymore
         isRampSelecting = false;
+        // Setting the end coordinates
+        currentSelection.endCoords = getColourCoordinates(getElementIndex(mouseEvent.target));
+        
+        // Opening the ramp menu
+        openRampMenu();
     }
 }
 
-function getElementIndex(element) {
-    for (let i=0; i<coloursList.childElementCount; i++) {
-        if (element == coloursList.children[i]) {
-            return i;
-        }
-    }
+function openRampMenu() {
+    rampMenu.style.display = "inline-block";
+    rampMenu.style.left = (currentSelection.endCoords[0] * blockData.squareSize + blockData.squareSize) + "px"; // Add end offset
+    
+    // Same for the vertical coord
+    rampMenu.style.top = (currentSelection.endCoords[1] * blockData.squareSize) + "px";
+}
 
-    alert("Couldn't find the selected colour");
+function closeAllSubmenus() {
+    let menus = document.getElementsByClassName("pb-submenu");
+
+    for (let i=0; i<menus.length; i++) {
+        menus[i].style.display = "none";
+    }
+}
+
+function saveRamp() {
+    let name = document.getElementById("pb-ramp-name").value;
+    let colour = document.getElementById("pb-ramp-colour").value;
+    let label = document.createElement("div");
+    
+    console.log("sus");
+
+    // Adding the name and colour to the ramp data
+    currentSelection.name = name;
+    currentSelection.colour = colour;
+
+    // Creating a label for the ramp
+    label.innerHTML = name;
+    label.style.backgroundColor = colour;
+    label.style.position = "relative";
+    label.style.padding = "2px";
+    label.style.left = (currentSelection.startCoords[0] * blockData.squareSize) + "px";
+    label.style.top = (currentSelection.startCoords[1] * blockData.squareSize) + "px";
+    label.style.zIndex = 4;
+    label.className = "pb-label";
+
+    // Adding the label to the labels container
+    coloursList.parentElement.children[0].appendChild(label);
+
+    // Adding the current selection to the list of already existing ramps
+    ramps.push(currentSelection);   
+    // TODO: fix the outline on the ramp
+
+    // Closing the dialogue
+    closeDialogue();
+    // Closing all the submenus
+    closeAllSubmenus();
 }
 
 /** TODO:
- *      - Select multiple colours
- *          - Right click opens a menu
+ *      - Select multiple colours DONE
+ *          - Right click opens a menu DONE
  *              - Reverse colours
  *              - Quantize
  *              - Gradient between two colours
  *              - Create ramp
  *                  - Select colour and name for the label
+ *      - Resize ramps
  *      - Add class to selected colour
  *      - Sort colours by
  *          - Ramps (see C# palette sorter)
@@ -213,6 +278,11 @@ function getElementIndex(element) {
  *      - Edit colour (edits the current square without having to delete it and add it back)
  */
 
+
+ /** Updates the current data about the size of the palette list (height, width and square size).
+  *  It also updates the outline after doing so.
+  * 
+  */
  function updateSizeData() {
     blockData.blockHeight = coloursList.parentElement.clientHeight;
     blockData.blockWidth = coloursList.parentElement.clientWidth;
@@ -221,6 +291,11 @@ function getElementIndex(element) {
     updateRampSelection();
  }
 
+ /** Gets the colour coordinates relative to the colour list seen as a matrix. Coordinates
+  *  start from the top left angle.
+  * 
+  * @param {*} index The index of the colour in the list seen as a linear array
+  */
  function getColourCoordinates(index) {
     let yIndex = Math.floor(index / Math.floor(blockData.blockWidth / blockData.squareSize));
     let xIndex = Math.floor(index % Math.floor(blockData.blockWidth / blockData.squareSize));
@@ -228,7 +303,25 @@ function getElementIndex(element) {
     return [xIndex, yIndex];
  }
 
+ /** Returns the index of the element in the colour list
+  * 
+  * @param {*} element The element of which we need to get the index
+  */
+ function getElementIndex(element) {
+    for (let i=0; i<coloursList.childElementCount; i++) {
+        if (element == coloursList.children[i]) {
+            return i;
+        }
+    }
 
+    alert("Couldn't find the selected colour");
+}
+
+/** Resizes the squares depending on the scroll amount (only resizes if the user is 
+ *  also holding alt)
+ * 
+ * @param {*} mouseEvent 
+ */
 function resizeSquares(mouseEvent) {
     let amount = mouseEvent.deltaY > 0 ? -5 : 5;
     currentSquareSize += amount;
@@ -244,7 +337,10 @@ function resizeSquares(mouseEvent) {
     updateSizeData();
 }
 
-
+/** Converts a CSS colour eg rgb(x,y,z) to a hex string
+ * 
+ * @param {*} rgb 
+ */
 function cssToHex(rgb) {
     rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
     function hex(x) {

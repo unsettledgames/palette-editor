@@ -1,3 +1,8 @@
+/** pop-up-container is the container of all the pop up windows in the project.
+ *  Every time a certain window is needed, that window is enabled and the other ones 
+ *  are closed.
+ */
+
 function showDialogue (dialogueName, trackEvent) {
     if (typeof trackEvent === 'undefined') trackEvent = true; 
 
